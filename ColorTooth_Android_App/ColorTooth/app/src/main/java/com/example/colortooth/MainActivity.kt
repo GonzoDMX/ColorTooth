@@ -76,6 +76,7 @@ class MainActivity : AppCompatActivity() {
 
         // Turn off recyclervier animation, otherwise it flashes each time the database is updated
         recyclerView.itemAnimator = null
+        recyclerView.setHasFixedSize(true)
 
         mViewModel.allCLicks.observe(this) { clicks ->
             clicks.let { adapter.submitList(it) }
@@ -145,9 +146,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.buttonFind.setOnClickListener() {
-        }
-
         binding.buttonClear.setOnClickListener() {
             clearDatabase()
             clearColorView()
@@ -159,6 +157,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setConnect() {
+        clearDatabase()
+        clearColorView()
         // Définir le message de connexion
         message = "<CONNECT>"
         // Déclarer la connexion ouverte

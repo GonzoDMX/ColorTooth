@@ -193,17 +193,6 @@
             app:layout_constraintStart_toStartOf="@id/imageView" />
 
         <Button
-            android:id="@+id/buttonFind"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="@string/filter"
-            app:layout_constraintBottom_toBottomOf="@+id/buttonConn"
-            app:layout_constraintEnd_toStartOf="@+id/buttonClear"
-            app:layout_constraintStart_toEndOf="@+id/buttonConn"
-            app:layout_constraintTop_toTopOf="@+id/buttonConn" />
-
-        <Button
             android:id="@+id/buttonClear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

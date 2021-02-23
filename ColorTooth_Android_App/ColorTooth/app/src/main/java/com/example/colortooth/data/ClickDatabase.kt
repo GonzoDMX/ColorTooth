@@ -30,14 +30,15 @@ abstract class ClickDatabase : RoomDatabase(){
         suspend fun populateDatabase(clickDao: ClickDao) {
 
             clickDao.deleteAll()
-
-            // Add sample data
+            /*
+            // Add test data
             var click1 = ClickData( 0, 1, "Red", 255, 255, 0, 0)
             var click2 = ClickData( 0, 2, "Green", 255, 0, 255, 0)
             var click3 = ClickData( 0, 3, "Blue", 255, 0, 0, 255)
             clickDao.insert(click1)
             clickDao.insert(click2)
             clickDao.insert(click3)
+             */
         }
     }
 
