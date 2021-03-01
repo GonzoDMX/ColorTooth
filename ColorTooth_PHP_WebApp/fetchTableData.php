@@ -10,8 +10,8 @@
 	// Database User Credentials
     $servername = "localhost";
     $username = "colorclick";
-    $password = "accessiseverything";  //your database password
-    $dbname = "Color_DB";  //your database name
+    $password = "accessiseverything";
+    $dbname = "Color_DB";
 
 	// Establish Connection to MySQL Database
     $con = new mysqli($servername, $username, $password, $dbname);
@@ -22,7 +22,7 @@
     }
     else
     {
-        //echo ("Connect Successfully");
+        //echo ("Connected!");
     }
 
 	// Get Data from MySQL Database
@@ -56,6 +56,7 @@
 		$temp_array[]=array('v'=>(string)$row['time_s']);  
 	  	$rows[] = array('c'=>$temp_array);
 	}
+	// Add empty rows to avoid table dynamically resizing on web page
 	if(mysqli_num_rows($result)<21) {
 		for($i = 1; $i <= 21 - mysqli_num_rows($result); $i++) {
 			$temp_array = array();

@@ -22,7 +22,7 @@
 	}
 	else
 	{
-		//echo ("Connect Successfully");
+		//echo ("Connected!");
 	}
 
 	// Get Data from MySQL Database

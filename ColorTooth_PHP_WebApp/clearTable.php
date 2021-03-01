@@ -7,26 +7,26 @@
 *	1 Mars 2021
 */
 
-$servername = "localhost";
-$username = "colorclick";
-$password = "accessiseverything";
-$dbname = "Color_DB";
+	$servername = "localhost";
+	$username = "colorclick";
+	$password = "accessiseverything";
+	$dbname = "Color_DB";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-// Check connection
-if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
-}
+	// Create connection
+	$conn = new mysqli($servername, $username, $password, $dbname);
+	// Check connection
+	if ($conn->connect_error) {
+		die("Connection failed: " . $conn->connect_error);
+	}
 
-$sql = "TRUNCATE TABLE ColorSerial";
+	$sql = "TRUNCATE TABLE ColorSerial";
 
-if ($conn->query($sql) === TRUE) {
-  echo "New record created successfully";
-} else {
-  echo "Error: " . $sql . "<br>" . $conn->error;
-}
+	if ($conn->query($sql) === TRUE) {
+		echo "MySQL: Success";
+	} else {
+		echo "Error: " . $sql . "<br>" . $conn->error;
+	}
 
-$conn->close();
+	$conn->close();
 
 ?>

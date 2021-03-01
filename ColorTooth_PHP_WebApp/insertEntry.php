@@ -27,13 +27,14 @@
 		die("Connection failed: " . $conn->connect_error);
 	}
 
+	// MySQL Query
 	$sql = "INSERT INTO ColorSerial
 				(colorname, alpha_v, red_v, green_v, blue_v, time_s)
 			VALUES
 				('$c_name', $alpha, $red, $green, $blue, '$time_s')";
 
 	if ($conn->query($sql) === TRUE) {
-		echo "New record created successfully";
+		echo "MySQL success";
 	} else {
 		echo "Error: " . $sql . "<br>" . $conn->error;
 	}

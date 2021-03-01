@@ -22,7 +22,7 @@
     }
     else
     {
-        //echo ("Connect Successfully");
+        //echo ("Connected!");
     }
 
 	// Get Data from MySQL Database
@@ -42,7 +42,7 @@
 	
 	// Declare Data Array
 	$rows = array();
-	
+	// Send an empty row if not data in DB to avoid error in web browser
 	if(mysqli_num_rows($result)==0) {
 		$temp_array = array();
 		$temp_array[]=array('v'=>'');
@@ -52,6 +52,7 @@
 		$temp_array[]=array('v'=>0);  
 		$rows[] = array('c'=>$temp_array);
 	} else {
+		// Fill in a buffer of empty data so graph scrolls from right to left
 		if(mysqli_num_rows($result)<100) {
 			for($i = 1; $i <= 100 - mysqli_num_rows($result); $i++) {
 				$temp_array = array();
