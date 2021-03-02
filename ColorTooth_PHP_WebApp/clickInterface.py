@@ -77,24 +77,26 @@ def convertHex(value):
 #Finds the Hue, Saturation, Value of argb input
 def argb2hsv(a, r, g, b):
 	val = 0.0
-	a = a/255.0	
-	r, g, b = (r/255.0)*a, (g/255.0)*a, (b/255.0)*a
+	a = a / 255.0	
+	r = (r / 255.0) * a
+	g = (g / 255.0) * a
+	b = (b / 255.0) * a
 	max_rgb = max(r, g, b)
 	min_rgb = min(r, g, b)
-	diff = max_rgb-min_rgb
+	diff = max_rgb - min_rgb
 	if max_rgb == min_rgb:
 		hue = 0
 	elif max_rgb == r:
-		hue = (60 * ((g-b)/diff) + 360) % 360
+		hue = (60 * ((g - b) / diff) + 360) % 360
 	elif max_rgb == g:
-		hue = (60 * ((b-r)/diff) + 120) % 360
+		hue = (60 * ((b - r) / diff) + 120) % 360
 	elif max_rgb == b:
-		hue = (60 * ((r-g)/diff) + 240) % 360
+		hue = (60 * ((r - g) / diff) + 240) % 360
 	if max_rgb == 0:
 		sat = 0
 	else:
-		sat = (diff/max_rgb)*100
-		val = max_rgb*100
+		sat = (diff / max_rgb) * 100
+		val = max_rgb * 100
 	return hue, sat, val
 
 
