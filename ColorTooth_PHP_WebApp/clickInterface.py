@@ -19,17 +19,20 @@ import sys
 import os.path
 import json
 
+#Name of Serial Port
 port = '/dev/ttyUSB0'
+#Speed of Serial Connection
 baud = 115200
 
 press = 0
 
 global serCOM
 
+
+#Initiate serial connection
 def initSerial(ser):
 	if(ser.isOpen() == False):
 		ser.open()
-	#message = "1"
 	if ser.in_waiting == 0:
 		ser.write("<CONNECT>".encode())
 	response = ser.readline()
@@ -39,10 +42,11 @@ def initSerial(ser):
 		return True
 	return False
 
+#Safely close the Serial connection
 def termSerial():
 	try:
 		serCOM = serial.Serial(port, baud, timeout=3)
-		#IMPORTANT must disable dtr or ESP32 resets or crashes each time		
+		#IMPORTANT must disable dtr or ESP32 resets / crashes each time		
 		serCOM.rts = 0
 		serCOM.dtr = 0
 		if serCOM.in_waiting == 0:
@@ -72,26 +76,26 @@ def convertHex(value):
 	
 #Finds the Hue, Saturation, Value of argb input
 def argb2hsv(a, r, g, b):
-	v = 0.0
+	val = 0.0
 	a = a/255.0	
 	r, g, b = (r/255.0)*a, (g/255.0)*a, (b/255.0)*a
-	mx = max(r, g, b)
-	mn = min(r, g, b)
-	df = mx-mn
-	if mx == mn:
-		h = 0
-	elif mx == r:
-		h = (60 * ((g-b)/df) + 360) % 360
-	elif mx == g:
-		h = (60 * ((b-r)/df) + 120) % 360
-	elif mx == b:
-		h = (60 * ((r-g)/df) + 240) % 360
-	if mx == 0:
-		s = 0
+	max_rgb = max(r, g, b)
+	min_rgb = min(r, g, b)
+	diff = max_rgb-min_rgb
+	if max_rgb == min_rgb:
+		hue = 0
+	elif max_rgb == r:
+		hue = (60 * ((g-b)/diff) + 360) % 360
+	elif max_rgb == g:
+		hue = (60 * ((b-r)/diff) + 120) % 360
+	elif max_rgb == b:
+		hue = (60 * ((r-g)/diff) + 240) % 360
+	if max_rgb == 0:
+		sat = 0
 	else:
-		s = (df/mx)*100
-		v = mx*100
-	return h, s, v
+		sat = (diff/max_rgb)*100
+		val = max_rgb*100
+	return hue, sat, val
 
 
 #Find the name of the Color
@@ -102,6 +106,7 @@ def findColor(alpha, red, green, blue):
 	if hsv[2] > 15.0:
 		#Check if color is White
 		if hsv[1] > 20.0:
+			#Look up table for color names
 			if hsv[0] >= 0.0 and hsv[0] <= 20.0:
 				colorName = "Red"
 			elif hsv[0] > 20.0 and hsv[0] <= 50.0:
@@ -126,13 +131,17 @@ def findColor(alpha, red, green, blue):
 			colorName = "White"
 	return colorName
 
-	
-def ProgramMain():	
+
+#Main Program Loop
+def ProgramMain():
+	#If no serial devices exists try will fail
 	try:
+		#Create a Serial object to connect to
 		serCOM = serial.Serial(port, baud, timeout=3)
 		serCOM.flushInput()
 		print("Success " + serCOM.name + " is open for business")
 		time.sleep(1)
+		#Affirm connection with the serial device
 		conn = initSerial(serCOM)
 		while conn:
 			while serCOM.in_waiting:
@@ -159,17 +168,16 @@ def ProgramMain():
 					#Format Time as String
 					time_stamp = time_obj.strftime("%H:%M:%S.%f")[:-4]
 					
-					#Create data object
+					#Create data objects, list for CSV file, Dictionary for PHP/DB
 					data_entry = [color_name, a, r, g, b, time_stamp]
 					sql_entry = {'colorname':color_name, 'alpha_v':a, 'red_v':r, 'green_v':g, 'blue_v':b, 'time_s':time_stamp}
 					#print(data_entry)
 					
 					write_csv(data_entry)
 					push_database(sql_entry)
-
+				
 				except Exception:
-					traceback.print_exc()
-					print("exiting")
+					print("There has been an error: " + Exception)
 	except Exception:
 		print("Error, no serial devices available!")
 		sys.exit(1)
@@ -177,53 +185,61 @@ def ProgramMain():
 
 #Push data to database
 def push_database(entry):
-	r = requests.post("http://localhost/insertEntry.php", data=entry)
-	#Show what the server responded with
-	#print(r.text)	
+	response = requests.post("http://localhost/insertEntry.php", data=entry)
+	#Print server response
+	#print(response.text)	
 
 
 #Append data to CSV file
 def write_csv(data):
+	#Check if file already exists
 	file_exists = os.path.isfile("test_data.csv")
+	#Set CSV Header Labels
 	header = ['ColorName', 'Clear', 'Red', 'Green', 'Blue', 'TimeStamp']
 	with open("test_data.csv","a") as f:
 		writer = csv.writer(f, delimiter=",", lineterminator='\n')
+		#Write header if creating a new file
 		if not file_exists:
 			writer.writerow(header)
 		writer.writerow(data)
 		f.close()
 	
-def exit_gracefully(signum, frame):
+#Ends program safely when Ctrl+C is triggered from command line
+def end_cmdLine(signum, frame):
 	signal.signal(signal.SIGINT, original_sigint)
 	termSerial()
 	sys.exit(0)
 
-
+#Clears the database table for incoming data
 def clear_table():
-	r = requests.post("http://localhost/clearTable.php")
-	#Show what the server responded with
-	#print(r.text)
+	response = requests.post("http://localhost/clearTable.php")
+	#Print Server response
+	#print(respose.text)
 
-
+#Delete CSV File, otherwise new data is appended to old data
 def clear_csv():
 	if os.path.exists("test_data.csv"):
 		print("Removing file")
 		os.remove("test_data.csv")
 
+#Closes Program safely when kill command is sent
 def killhandle(signum, frame):
-	''' This will close connections cleanly '''
 	termSerial()
-	line = "SIGTERM detected, shutting down"
+	line = "SIGTERM, Closing Serial Connection"
 	syslog.syslog(syslog.LOG_INFO, line)
 	sys.exit(0)
     	
 
 if __name__ == '__main__':
+	#Create callbacks for linux IPC (Inter-Process Comms) signals
 	original_sigint = signal.getsignal(signal.SIGINT)
-	signal.signal(signal.SIGINT, exit_gracefully)
+	signal.signal(signal.SIGINT, end_cmdLine)
 	signal.signal(signal.SIGTERM, killhandle)
+	#Clear if exists old CSV File
 	clear_csv()
+	#Clear/Truncate Database Table
 	clear_table()
+	#Launch Main function
 	ProgramMain()	
 
 
