@@ -14,20 +14,19 @@
     $dbname = "Color_DB";
 
 	// Establish Connection to MySQL Database
-    $con = new mysqli($servername, $username, $password, $dbname);
+    $conn = new mysqli($servername, $username, $password, $dbname);
 
 	// Check connection status
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
-    else
-    {
-        //echo ("Connected!");
+    else {
+        //echo "Connected!";
     }
 
 	// Get Data from MySQL Database
 	$query = "SELECT * FROM ColorSerial ORDER BY id DESC";
-	$result = $con->query($query);
+	$result = $conn->query($query);
 
 	// Declare Root Array
 	$table = array();
@@ -74,5 +73,7 @@
 	$table['rows']=$rows;
 	// Encode Root table to JSON format and ship it
 	echo json_encode($table);
+	
+	$conn->close();
 	
 ?>  

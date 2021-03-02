@@ -14,20 +14,19 @@
 	$dbname = "Color_DB";
 
 	// Establish Connection to MySQL Database
-	$con = new mysqli($servername, $username, $password, $dbname);
+	$conn = new mysqli($servername, $username, $password, $dbname);
 
 	// Check connection status
-	if ($con->connect_error) {
-		die("Connection failed: " . $con->connect_error);
+	if ($conn->connect_error) {
+		die("Connection failed: " . $conn->connect_error);
 	}
-	else
-	{
-		//echo ("Connected!");
+	else {
+		//echo "Connected!";
 	}
 
 	// Get Data from MySQL Database
 	$query = "SELECT colorname, alpha_v, red_v, green_v, blue_v FROM ColorSerial ORDER BY id DESC LIMIT 1";
-	$result = $con->query($query);
+	$result = $conn->query($query);
 
 	$color = null;
 	// Retrieve and format Data from Database Query result
@@ -42,5 +41,7 @@
 		
 		echo "rgb({$red},{$green},{$blue})";
 	}
+
+	$conn->close();
 
 ?>  

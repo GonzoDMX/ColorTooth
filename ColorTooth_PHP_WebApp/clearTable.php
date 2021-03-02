@@ -6,7 +6,8 @@
 *	Projet: ColorTooth - ESP32, ColorClick
 *	1 Mars 2021
 */
-
+	
+	//Set DB User Credentials
 	$servername = "localhost";
 	$username = "colorclick";
 	$password = "accessiseverything";
@@ -14,10 +15,14 @@
 
 	// Create connection
 	$conn = new mysqli($servername, $username, $password, $dbname);
-	// Check connection
-	if ($conn->connect_error) {
-		die("Connection failed: " . $conn->connect_error);
-	}
+
+		// Check connection status
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    else {
+        echo "Connected!";
+    }
 
 	$sql = "TRUNCATE TABLE ColorSerial";
 
