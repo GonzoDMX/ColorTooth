@@ -1,0 +1,42 @@
+<html>
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Time', 'Alpha', 'Red', 'Green', 'Blue'],
+          [   0,       0,     0,       0,     0 ],
+          [   1,    1000,   400,       5,     0 ],
+          [   2,    1170,   460,      98,    34 ],
+          [   3,     660,  1120,     167,   287 ],
+          [   4,    1030,   540,    5890,   346 ]
+        ]);
+
+        var options = {
+          legend: { position: 'top' },
+          series: {
+				0: {color: '#000000' },
+				1: {color: '#E21E43' },
+				2: {color: '#36B518' },
+				3: {color: '#1E43E2' },
+			},
+			vAxis: { textPosition: 'none' },
+			  chartArea : {
+			        left: "3%",
+			         top: "11%"
+			         }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        chart.draw(data, options);
+      }
+    </script>
+</head>
+<body leftmargin="0" topmargin="0">
+<div id="curve_chart" style="width: 520px; height: 420px"></div>
+</body>
+</html>

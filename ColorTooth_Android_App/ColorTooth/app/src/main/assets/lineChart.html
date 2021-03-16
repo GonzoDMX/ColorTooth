@@ -1,0 +1,53 @@
+<html>
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Time', 'Alpha', 'Red', 'Green', 'Blue'],
+          [   0,       0,     0,       0,     0 ],
+          [   1,    1000,   400,       5,     0 ],
+          [   2,    1170,   460,      98,    34 ],
+          [   3,     660,  1120,     167,   287 ],
+          [   4,    1030,   540,    5890,   346 ]
+        ]);
+
+        var options = {
+          title: 'Color Click - TCS3471',
+          legend: { position: 'right' },
+          series: {
+				0: {color: '#000000' },
+				1: {color: '#E21E43' },
+				2: {color: '#36B518' },
+				3: {color: '#1E43E2' },
+			}
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        chart.draw(data, options);
+      }
+    </script>
+</head>
+<body>
+<div id="curve_chart" style="width: AndSize.getFromAndroid()[0]; height: AndSize.getFromAndroid()[1]"></div>
+<p id="p1">Hello World!</p>
+<div>
+    <input type="button" value="Get from android" onClick="getFromAndroid()" />
+    <script type="text/javascript">
+    var myVar = null;
+    function getFromAndroid() {
+        myVar = Android.getFromAndroid();
+        document.getElementById("p1").innerHTML = myVar;
+    }
+
+    function testIt() {
+        document.getElementById("p1").innerHTML = "I'm triggered!";
+    }
+</script>
+</div>
+</body>
+</html>

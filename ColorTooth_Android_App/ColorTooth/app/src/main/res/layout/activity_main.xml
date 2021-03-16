@@ -7,6 +7,7 @@
     tools:context="com.example.colortooth.MainActivity">
 
 
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_main"
         android:layout_width="match_parent"
@@ -183,6 +184,30 @@
             app:layout_constraintTop_toBottomOf="@id/imageView"
             app:layout_constraintVertical_weight="2" />
 
+        <LinearLayout
+            android:id="@+id/webViewHolder"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/edit_border"
+            app:layout_constraintBottom_toTopOf="@id/buttonConn"
+            app:layout_constraintEnd_toEndOf="@id/imageView"
+            app:layout_constraintStart_toStartOf="@id/imageView"
+            app:layout_constraintTop_toBottomOf="@id/textLogLabel"
+            app:layout_constraintVertical_weight="2">
+
+            <WebView
+                android:id="@+id/webViewMain"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="none">
+
+            </WebView>
+
+        </LinearLayout>
+
         <Button
             android:id="@+id/buttonConn"
             android:layout_width="wrap_content"
@@ -191,6 +216,15 @@
             android:text="@string/connect"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@id/imageView" />
+
+        <Button
+            android:id="@+id/buttonWeb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WebView"
+            app:layout_constraintBottom_toBottomOf="@id/buttonClear"
+            app:layout_constraintStart_toEndOf="@id/buttonConn"
+            app:layout_constraintEnd_toStartOf="@id/buttonClear"/>
 
         <Button
             android:id="@+id/buttonClear"

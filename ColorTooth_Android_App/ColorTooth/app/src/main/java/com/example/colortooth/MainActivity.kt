@@ -6,11 +6,16 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
+import android.webkit.WebSettings
+import android.webkit.WebView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Toast
@@ -19,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.colortooth.adapters.ClickListAdapter
@@ -87,6 +93,40 @@ class MainActivity : AppCompatActivity() {
 
         bluetoothPermissions()
         bindButtonListeners()
+
+        var myWebViewWidth = binding.webViewMain.width
+        var myWebViewHeight = binding.webViewMain.height
+
+        binding.buttonWeb.setOnClickListener() {
+            //val intent = Intent(this, WebActivity::class.java).apply {}
+            //startActivity(intent)
+            binding.webViewMain.isVisible = !binding.webViewMain.isVisible
+            myWebViewWidth = binding.webViewMain.width
+            myWebViewHeight = binding.webViewMain.height
+            Log.d("WEB_WIDTH", myWebViewWidth.toString())
+            Log.d("WEB_HEIGHT", myWebViewHeight.toString())
+        }
+
+
+
+
+        val webSettings = binding.webViewMain.settings
+        //binding.webViewMain.requestFocusFromTouch()
+        //binding.webViewChart.loadDataWithBaseURL("file:///android_asset/lineChart.html", content, "text/html", "utf-8", null)
+        val myWebView = binding.webViewMain as WebView
+        webSettings.javaScriptEnabled = true
+        webSettings.domStorageEnabled = true
+        binding.webViewMain
+        // Test retrieving data from a kotlin JavaScript Interface
+        myWebView.addJavascriptInterface(JSInterface(this), "Android")
+        myWebView.addJavascriptInterface(SizeJSInterface(this, myWebViewWidth, myWebViewHeight), "AndSize")
+        myWebView.loadUrl("file:///android_asset/ClickChart.html")
+
+        binding.webViewMain.isVisible = false
+
+        // Disables web view scrolling by catching and overriding touch events
+        binding.webViewMain.setOnTouchListener { _: View, motionEvent: MotionEvent -> motionEvent.action == MotionEvent.ACTION_MOVE }
+
     }
 
 
