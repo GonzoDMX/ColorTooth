@@ -1,42 +1,58 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device,height=device.height,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
 
-      function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ['Time', 'Alpha', 'Red', 'Green', 'Blue'],
-          [   0,       0,     0,       0,     0 ],
-          [   1,    1000,   400,       5,     0 ],
-          [   2,    1170,   460,      98,    34 ],
-          [   3,     660,  1120,     167,   287 ],
-          [   4,    1030,   540,    5890,   346 ]
-        ]);
-
-        var options = {
-          legend: { position: 'top' },
-          series: {
-				0: {color: '#000000' },
-				1: {color: '#E21E43' },
-				2: {color: '#36B518' },
-				3: {color: '#1E43E2' },
-			},
-			vAxis: { textPosition: 'none' },
-			  chartArea : {
-			        left: "3%",
-			         top: "11%"
-			         }
+        var dataTable;
+        var chartOptions = {
+            width: AndroidWidth.getFromAndroid(),
+            height: AndroidHeight.getFromAndroid(),
+            legend: { position: 'top' },
+            vAxis: {
+              viewWindowMode:'explicit',
+              viewWindow:{
+                max:255,
+                min:0
+            	}
+            },
+            hAxis: {
+                showTextEvery: 5
+            },
+            series: {
+                0: {color: '#000000' },
+                1: {color: '#E21E43' },
+                2: {color: '#36B518' },
+                3: {color: '#1E43E2' },
+            },
+            chartArea: {
+                left: "2%",
+                top: "8%"
+            }
         };
 
-        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+        function drawChart() {
+            var chart = new google.visualization.LineChart(document.getElementById('line_chart'));
+            chart.draw(dataTable, chartOptions);
+        }
 
-        chart.draw(data, options);
-      }
+        function postChart(nData) {
+            dataTable = new google.visualization.DataTable(nData);
+            var chart = new google.visualization.LineChart(document.getElementById('line_chart'));
+            chart.draw(dataTable, chartOptions);
+        }
     </script>
+    <style>
+        #parent {
+			display: flex;
+		}
+    </style>
 </head>
-<body leftmargin="0" topmargin="0">
-<div id="curve_chart" style="width: 520px; height: 420px"></div>
+<body id="the_body">
+    <div id="parent">
+        <div id="line_chart" ></div>
+    </div>
 </body>
 </html>

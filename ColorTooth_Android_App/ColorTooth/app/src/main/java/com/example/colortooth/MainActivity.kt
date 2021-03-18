@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -14,11 +13,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.webkit.WebSettings
 import android.webkit.WebView
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -31,13 +27,18 @@ import com.example.colortooth.adapters.ClickListAdapter
 import com.example.colortooth.data.ClickApplication
 import com.example.colortooth.data.ClickData
 import com.example.colortooth.databinding.ActivityMainBinding
+import com.example.colortooth.interfaceJS.HeightInterface
+import com.example.colortooth.interfaceJS.WidthInterface
 import com.example.colortooth.network.BluetoothClient
 import com.example.colortooth.ui.MainViewModel
 import com.example.colortooth.ui.MainViewModelFactory
 import com.example.colortooth.utilities.*
-import com.google.android.material.snackbar.Snackbar
-import java.util.ArrayList
-import java.util.HashMap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.math.roundToInt
 
 
 // Declare string, pour passer des messages de MainActivity à BluetoothClient Class
@@ -46,6 +47,11 @@ var message = ""
 var connexion = false
 // Indicateur de fin de connexion, indique quand l'utilisateur a fermé la connexion pour que le fil puisse se fermer
 var terminateConn = false
+
+var myWebViewWidth = 0
+var myWebViewHeight = 0
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -65,6 +71,10 @@ class MainActivity : AppCompatActivity() {
     private var devicesMap = HashMap<String, BluetoothDevice>()
     // Déclarer l'adaptateur Array, contient des chaînes pour Bluetooth AlertDialog
     private var mArrayAdapter: ArrayAdapter<String>? = null
+
+    private var mGraph = GraphJS
+
+    private var myWebView: WebView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,51 +104,61 @@ class MainActivity : AppCompatActivity() {
         bluetoothPermissions()
         bindButtonListeners()
 
-        var myWebViewWidth = binding.webViewMain.width
-        var myWebViewHeight = binding.webViewMain.height
 
-        binding.buttonWeb.setOnClickListener() {
-            //val intent = Intent(this, WebActivity::class.java).apply {}
-            //startActivity(intent)
-            binding.webViewMain.isVisible = !binding.webViewMain.isVisible
-            myWebViewWidth = binding.webViewMain.width
-            myWebViewHeight = binding.webViewMain.height
-            Log.d("WEB_WIDTH", myWebViewWidth.toString())
-            Log.d("WEB_HEIGHT", myWebViewHeight.toString())
-        }
-
-
+        // Get Android device screen size for correct webview scaling
+        val display = windowManager.currentWindowMetrics.bounds
+        myWebViewWidth = (display.right * 0.35).roundToInt()
+        myWebViewHeight = (display.bottom * 0.14).roundToInt()
+        //Log.d("CHECK_WINDOW", myWebViewWidth.toString())
+        //Log.d("CHECK_WINDOW", display.bottom.toString())
 
 
         val webSettings = binding.webViewMain.settings
-        //binding.webViewMain.requestFocusFromTouch()
-        //binding.webViewChart.loadDataWithBaseURL("file:///android_asset/lineChart.html", content, "text/html", "utf-8", null)
-        val myWebView = binding.webViewMain as WebView
+        myWebView = binding.webViewMain as WebView
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true
         binding.webViewMain
         // Test retrieving data from a kotlin JavaScript Interface
-        myWebView.addJavascriptInterface(JSInterface(this), "Android")
-        myWebView.addJavascriptInterface(SizeJSInterface(this, myWebViewWidth, myWebViewHeight), "AndSize")
-        myWebView.loadUrl("file:///android_asset/ClickChart.html")
+        myWebView!!.addJavascriptInterface(WidthInterface(this), "AndroidWidth")
+        myWebView!!.addJavascriptInterface(HeightInterface(this), "AndroidHeight")
+        myWebView!!.loadUrl("file:///android_asset/ClickChart.html")
 
         binding.webViewMain.isVisible = false
 
         // Disables web view scrolling by catching and overriding touch events
         binding.webViewMain.setOnTouchListener { _: View, motionEvent: MotionEvent -> motionEvent.action == MotionEvent.ACTION_MOVE }
 
+        binding.switchWeb.setOnClickListener() {
+            if(!binding.webViewMain.isVisible) {
+                binding.webViewMain.isVisible = true
+                myWebView!!.loadUrl("javascript:postChart(${mGraph.pullJSON()})")
+            } else {
+                binding.webViewMain.isVisible = false
+            }
+        }
     }
 
+
+    fun refreshTester(v:WebView) {
+        GlobalScope.launch(context = Dispatchers.Main) {
+            for(i in 1..25) {
+                mGraph.updateJSON(msgCount, msgCount / 2, msgCount * 2, 0, 0)
+                v.loadUrl("javascript:postChart(${mGraph.pullJSON()})")
+                delay(1000)
+                msgCount += 1
+                Log.d("HELLO_JACK", "print")
+            }
+        }
+    }
 
     private fun bluetoothPermissions() {
         // Si les autorisations Bluetooth ne sont pas définies
         if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
+                        Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
             // Demandez l'autorisation d'accéder au Bluetooth lors du premier lancement de l'application
             ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1)
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
         }
     }
 
@@ -196,6 +216,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     private fun setConnect() {
         clearDatabase()
         clearColorView()
@@ -213,7 +234,9 @@ class MainActivity : AppCompatActivity() {
         binding.buttonConn.isEnabled = false
         // Réinitialiser l'aperçu des couleurs
         clearColorView()
+        mGraph.reInitJSON()
     }
+
 
     private fun setDisconnect() {
         // Définir le message de déconnexion
@@ -237,6 +260,7 @@ class MainActivity : AppCompatActivity() {
         binding.buttonConn.text = "Connect"
     }
 
+
     // Déverrouille le bouton de connexion
     fun unlockButton(){
         // Définir le bouton sur actif
@@ -257,6 +281,7 @@ class MainActivity : AppCompatActivity() {
             mArrayAdapter!!.add((if (device.name != null) device.name else "Unknown") + "\n" + device.address + "\nPaired")
         }
     }
+
 
     private fun discoverBluetoothDevices() {
         // Lancer le processus de découverte
@@ -279,6 +304,7 @@ class MainActivity : AppCompatActivity() {
             dialog.show()
         }
     }
+
 
     // Internationalisation Seppress, nous voulons une sortie brute et non une traduction
     @SuppressLint("SetTextI18n")
@@ -303,18 +329,26 @@ class MainActivity : AppCompatActivity() {
             if(connexion) {
                 val colorName = nameOfColor(values[0], values[1], values[2], values[3])
                 msgCount += 1
+                updateLineChart(msgCount, values[0], values[1], values[2], values[3])
                 val data = ClickData(0, msgCount, colorName, values[0], values[1], values[2], values[3])
                 // Write values to Database
                 writeToDatabase(data)
                 // Update la couleur de l'imageView
                 updateColorView(data)
             }
-            // Si l'en-tête ne correspond pas à <TCS>
+        // Si l'en-tête ne correspond pas à <TCS>
         } else {
             parseConnectionStatus(text)
         }
     }
 
+    //Updates JSON pushed to Line Chart in Web View
+    private fun updateLineChart(t: Int, a: Int, r: Int, g: Int, b: Int) {
+        mGraph.updateJSON(t, a, r, g, b)
+        if(binding.webViewMain.isVisible) {
+            myWebView!!.loadUrl("javascript:postChart(${mGraph.pullJSON()})")
+        }
+    }
 
     fun updateColorView(data: ClickData) {
         binding.imageView.setColorFilter(Color.argb(data.alpha, data.red, data.green, data.blue))
@@ -324,13 +358,15 @@ class MainActivity : AppCompatActivity() {
         binding.textBlue.text = data.blue.toString()
     }
 
+
     private fun clearColorView() {
-        binding.imageView.setColorFilter(Color.argb(0, 0,0,0))
+        binding.imageView.setColorFilter(Color.argb(0, 0, 0, 0))
         binding.textAlpha.text = "0"
         binding.textRed.text = "0"
         binding.textGreen.text = "0"
         binding.textBlue.text = "0"
     }
+
 
     @SuppressLint("UseCompatTextViewDrawableApis")
     private fun parseConnectionStatus(msg: String) {
@@ -362,6 +398,7 @@ class MainActivity : AppCompatActivity() {
         mViewModel.insert(data)
     }
 
+
     private fun clearDatabase() {
         msgCount = 0
         mViewModel.delete()
@@ -372,3 +409,4 @@ class MainActivity : AppCompatActivity() {
         setDisconnect()
     }
 }
+

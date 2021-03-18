@@ -164,16 +164,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:text="@string/bluetooth_logger"
-            app:layout_constraintBottom_toTopOf="@id/recyclerLog"
+            app:layout_constraintTop_toTopOf="@id/switchWeb"
             app:layout_constraintStart_toStartOf="@id/recyclerLog"
+            app:layout_constraintBottom_toBottomOf="@id/switchWeb" />
+
+        <Switch
+            android:id="@+id/switchWeb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Graph"
+            app:layout_constraintBottom_toTopOf="@id/recyclerLog"
+            app:layout_constraintEnd_toEndOf="@id/recyclerLog"
             app:layout_constraintTop_toBottomOf="@id/imageView" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerLog"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="5dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="20dp"
@@ -188,6 +199,7 @@
             android:id="@+id/webViewHolder"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="5dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="20dp"
@@ -218,15 +230,6 @@
             app:layout_constraintStart_toStartOf="@id/imageView" />
 
         <Button
-            android:id="@+id/buttonWeb"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="WebView"
-            app:layout_constraintBottom_toBottomOf="@id/buttonClear"
-            app:layout_constraintStart_toEndOf="@id/buttonConn"
-            app:layout_constraintEnd_toStartOf="@id/buttonClear"/>
-
-        <Button
             android:id="@+id/buttonClear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -234,6 +237,7 @@
             android:text="@string/clear_log"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/imageView" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
