@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.WindowManager
 import android.webkit.WebView
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
@@ -48,8 +49,8 @@ var connexion = false
 // Indicateur de fin de connexion, indique quand l'utilisateur a fermé la connexion pour que le fil puisse se fermer
 var terminateConn = false
 
-var myWebViewWidth = 0
-var myWebViewHeight = 0
+var myWebViewWidth = 540
+var myWebViewHeight = 540
 
 
 
@@ -104,13 +105,23 @@ class MainActivity : AppCompatActivity() {
         bluetoothPermissions()
         bindButtonListeners()
 
-
-        // Get Android device screen size for correct webview scaling
-        val display = windowManager.currentWindowMetrics.bounds
-        myWebViewWidth = (display.right * 0.35).roundToInt()
-        myWebViewHeight = (display.bottom * 0.14).roundToInt()
-        //Log.d("CHECK_WINDOW", myWebViewWidth.toString())
-        //Log.d("CHECK_WINDOW", display.bottom.toString())
+        /*
+        try {
+            // Get Android device screen size for correct webview scaling
+            val display = windowManager.currentWindowMetrics.bounds
+            myWebViewWidth = (display.right * 0.35).roundToInt()
+            myWebViewHeight = (display.bottom * 0.14).roundToInt()
+        }
+        catch(ex: Exception) {
+            Log.d("WINDOW_ERR", ex.toString())
+        }
+        finally{
+            if(myWebViewWidth == 0) {
+                myWebViewWidth = 500
+                myWebViewHeight = 400
+            }
+        }
+         */
 
 
         val webSettings = binding.webViewMain.settings
@@ -124,6 +135,7 @@ class MainActivity : AppCompatActivity() {
         myWebView!!.loadUrl("file:///android_asset/ClickChart.html")
 
         binding.webViewMain.isVisible = false
+        binding.webViewHolder.isVisible = false
 
         // Disables web view scrolling by catching and overriding touch events
         binding.webViewMain.setOnTouchListener { _: View, motionEvent: MotionEvent -> motionEvent.action == MotionEvent.ACTION_MOVE }
@@ -131,9 +143,11 @@ class MainActivity : AppCompatActivity() {
         binding.switchWeb.setOnClickListener() {
             if(!binding.webViewMain.isVisible) {
                 binding.webViewMain.isVisible = true
+                binding.webViewHolder.isVisible = true
                 myWebView!!.loadUrl("javascript:postChart(${mGraph.pullJSON()})")
             } else {
                 binding.webViewMain.isVisible = false
+                binding.webViewHolder.isVisible = false
             }
         }
     }
